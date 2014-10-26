@@ -5,12 +5,11 @@
     "keywords": ["birko", "shop", "minishop", "symfony2", "heureka"], 
     "license": "MIT", 
     "authors": [ 
-         { 
-             "name": "Ing. František Bereň", 
-             "email": "birko@live.com" 
-         } 
-     ] 
-
+        { 
+            "name": "Ing. František Bereň", 
+            "email": "birko@live.com" 
+        } 
+    ],
     "autoload": {
         "psr-0": {
             "Core": ""
