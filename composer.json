@@ -13,7 +13,7 @@
 
     "autoload": {
         "psr-0": {
-            "Neonus\\Nws\\Plugin": ""
+            "Core": ""
         }
     },
      "require": {
