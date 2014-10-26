@@ -11,6 +11,7 @@ in project composer.json
     "require": {
     ...
         "birko/minishop-heureka": "@dev",
+        "heureka/overenozakazniky": "dev-master"
 ```
 
 register in AppKernel
