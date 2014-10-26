@@ -1,0 +1,25 @@
+{
+    "name": "birko/minishop-heureka",
+    "type": "symfony-bundle",
+    "description": "Heureka support for MiniShop Site",
+    "keywords": ["birko", "shop", "minishop", "symfony2", "heureka"], 
+    "license": "MIT", 
+    "authors": [ 
+         { 
+             "name": "Ing. František Bereň", 
+             "email": "birko@live.com" 
+         } 
+     ] 
+
+    "autoload": {
+        "psr-0": {
+            "Neonus\\Nws\\Plugin": ""
+        }
+    },
+     "require": {
+        "heureka/overenozakazniky": "dev-master"
+     },
+
+    "target-dir": ""
+
+}
