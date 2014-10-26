@@ -33,7 +33,7 @@ class CheckoutEndEventListener
         if (in_array($routename, array("checkout_end"))) {
             $heureka = $this->container->getParameter('heureka.key');
             if (!empty($heureka)) {
-                $cart = $this->container->get('neonus_nws_shop.shopservice')->getCart();
+                $cart = $controller->getCart();
                 if (!$cart->isEmpty()) {
                     if ($session->has('order-id')) {
                         $order = $session->get('order-id');
