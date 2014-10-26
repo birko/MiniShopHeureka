@@ -1,0 +1,9 @@
+parameters:
+#    core_heureka.example.class: Core\HeurekaBundle\Example
+
+services:
+    core_heureka.checkout_end_listener:
+        class: 'Core\HeurekaBundle\EventListener\CheckoutEndEventListener'
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onKernelController, priority:  1}
+        arguments: [ @service_container, @doctrine.orm.entity_manager ]

@@ -1,0 +1,3 @@
+core_heureka_export:
+    pattern:  /heureka/export
+    defaults: { _controller: CoreHeurekaBundle:Heureka:export }

@@ -34,3 +34,12 @@ in routing.yml
         resource: "@CoreHeurekaBundle/Resources/config/routing.yml"
         prefix:   /
 ```
+
+in config
+
+``` yaml  
+    core_heureka:
+    prices:
+        - 'normal'
+    key: ~
+```
