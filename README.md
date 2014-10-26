@@ -33,4 +33,4 @@ in routing.yml
     core_heureka:
         resource: "@CoreHeurekaBundle/Resources/config/routing.yml"
         prefix:   /
-``
+```
