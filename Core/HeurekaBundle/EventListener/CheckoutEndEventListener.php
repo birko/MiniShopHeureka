@@ -2,6 +2,7 @@
 namespace Core\HeurekaBundle\EventListener;
 
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Site\ShopBundle\Controller\ShopController;
 
 class CheckoutEndEventListener
 {
