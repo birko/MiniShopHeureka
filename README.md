@@ -39,7 +39,7 @@ in config
 
 ``` yaml  
     core_heureka:
-    prices:
-        - 'normal'
-    key: ~
+        prices:
+            - 'normal'
+        key: ~
 ```
