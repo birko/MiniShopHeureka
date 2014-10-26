@@ -1,0 +1,4 @@
+MiniShopHeureka
+===============
+
+support for miniship
