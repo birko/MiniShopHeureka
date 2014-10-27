@@ -15,9 +15,9 @@
             "Core": ""
         }
     },
-     "require": {
-        "heureka/overenozakazniky": "dev-master"
-     },
+    "require": {
+       "heureka/overenozakazniky": "dev-master"
+    },
 
     "target-dir": ""
 

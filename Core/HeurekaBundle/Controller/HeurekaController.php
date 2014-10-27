@@ -10,14 +10,25 @@ class HeurekaController extends ShopController
 {
     public function exportAction()
     {
+        $request = $this->getRequest();
         $minishop  = $this->container->getParameter('minishop');
         $em = $this->getDoctrine()->getManager();
         $query = $em->getRepository("CoreProductBundle:Product")->findByCategoryQuery(null, false, true, true, false);
         $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray();
         $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray();
-        $priceGroup = $this->getPriceGroup();
-        $currency = $this->getCurrency();
         
+        $pricegroup_id = $request->get('pricegroup');
+        $priceGroup = null;
+        if ($pricegroup_id !== null) {
+            $priceGroup = $em->getRepository('CoreUserBundle:PriceGroup')->find($pricegroup_id);
+        }
+        $priceGroup = ($priceGroup) ? $priceGroup : $this->getPriceGroup();
+        $currency_id = $request->get('currency');
+        $currency = null;
+        if ($currency_id !== null) {
+            $currency = $em->getRepository('CorePriceBundle:Currency')->find($currency_id);
+        }
+        $currency = ($currency) ? $currency : $this->getCurrency();
         $pricetypes = $this->container->getParameter('heureka.prices');
         
         $request= $this->getRequest();
