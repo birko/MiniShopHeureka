@@ -123,7 +123,14 @@ class HeurekaController extends ShopController
                     $pom = $paths[$category_id];
                 } else {
                     $path ="";
-                    $pathcategories = $em->getRepository('CoreCategoryBundle:Category')->getPathQueryBuilder($category)->getQuery()->getResult();
+                    $categoryquery = $em->getRepository('CoreCategoryBundle:Category')->getPathQueryBuilder($category)->getQuery();
+                    if ($request->get('_locale')) {
+                        $categoryquery->setHint(
+                            \Gedmo\Translatable\TranslatableListener::HINT_TRANSLATABLE_LOCALE,
+                            $request->get('_locale') // take locale from session or request etc.
+                        );
+                    }
+                    $pathcategories = $categoryquery->getResult();
                     if (!empty($pathcategories)) {
                         foreach ($pathcategories as $pathcat) {
                             if (!empty($path)) {
