@@ -123,7 +123,11 @@ class HeurekaController extends ShopController
                     $pom = $paths[$category_id];
                 } else {
                     $path ="";
-                    $categoryquery = $em->getRepository('CoreCategoryBundle:Category')->getPathQueryBuilder($category)->getQuery();
+                    $categoryquery = $em->getRepository('CoreCategoryBundle:Category')
+                    ->getPathQueryBuilder($category)
+                    ->andWhere("node.enabled=:enabled")
+                    ->setParameter("enabled", true)
+                    ->getQuery();
                     if ($request->get('_locale')) {
                         $categoryquery->setHint(
                             \Doctrine\ORM\Query::HINT_CUSTOM_OUTPUT_WALKER, 
