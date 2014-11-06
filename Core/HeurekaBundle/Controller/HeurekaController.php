@@ -230,7 +230,6 @@ class HeurekaController extends ShopController
             } else {
                 $shop->appendChild($item);
             }
-            
         }
 
         $response = new Response();
