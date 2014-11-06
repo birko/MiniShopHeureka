@@ -22,7 +22,8 @@ class HeurekaController extends ShopController
             );
         }
 
-        $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray();
+        $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray(null, array('image'));
+        $videos = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray(null, array('video'));
         $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray();
         $attributes = $em->getRepository("CoreProductBundle:Attribute")->getGroupedAttributesByProducts(array(), array(), $request->get('_locale'));
         $options = $em->getRepository("CoreProductBundle:ProductOption")->getGroupedOptionsByProducts(array(), array(), $request->get('_locale'));
@@ -81,10 +82,34 @@ class HeurekaController extends ShopController
             $item->appendChild($ean);
 
             if (isset($medias[$product->getId()])) {
-                $img = $document->createElement('IMGURL');
-                $media = current($medias[$product->getId()]);
-                $img->appendChild($document->createTextNode($request->getScheme() . '://' . $request->getHttpHost() . '/'. $media->getWebPath('original')));
+                $i = 0;
+                foreach($medias[$product->getId()] as $media)
+                {
+                    $imgurl = ($i === 0) ? 'IMGURL' : 'IMGURL_ALTERNATIVE';
+                    $img = $document->createElement($imgurl);
+                    $media = reset($medias[$product->getId()]);
+                    $img->appendChild($document->createTextNode($request->getScheme() . '://' . $request->getHttpHost() . '/'. $media->getWebPath('original')));
+                    $item->appendChild($img);
+                    $i++;
+                }
+            }
+            
+            if (isset($videos[$product->getId()])) {
+                $media = reset($videos[$product->getId()]);
+                $img = $document->createElement('VIDEO_URL');
+                switch($media->getVideoType()) {
+                    case 1: 
+                        $img->appendChild($document->createTextNode('http://www.youtube.com/watch?v=' . $media->getSource()));
+                        break;
+                    case 2: 
+                        $img->appendChild($document->createTextNode('http://www.vimeo.com/' . $media->getSource()));
+                        break;
+                    default: 
+                        $img->appendChild($document->createTextNode($request->getScheme() . '://' . $request->getHttpHost() . '/'. $media->getWebPath('original')));
+                        break;
+                }                
                 $item->appendChild($img);
+                $i++;
             }
 
             $price = $document->createElement('PRICE_VAT');
@@ -113,7 +138,7 @@ class HeurekaController extends ShopController
             $avb = $document->createElement('DELIVERY_DATE');
             $qdocument = "0";
             if (isset($stocks[$product->getId()])) {
-                $stock = current($stocks[$product->getId()]);
+                $stock = reset($stocks[$product->getId()]);
                 $qdocument = ($stock->getAmount() > 0 || ($stock->getAvailability())) ? "0" : "";
             }
             $avb->appendChild($document->createTextNode($qdocument));
