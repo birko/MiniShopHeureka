@@ -87,7 +87,6 @@ class HeurekaController extends ShopController
                 {
                     $imgurl = ($i === 0) ? 'IMGURL' : 'IMGURL_ALTERNATIVE';
                     $img = $document->createElement($imgurl);
-                    $media = reset($medias[$product->getId()]);
                     $img->appendChild($document->createTextNode($request->getScheme() . '://' . $request->getHttpHost() . '/'. $media->getWebPath('original')));
                     $item->appendChild($img);
                     $i++;
