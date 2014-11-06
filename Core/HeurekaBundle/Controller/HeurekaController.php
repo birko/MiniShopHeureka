@@ -23,9 +23,9 @@ class HeurekaController extends ShopController
         }
 
         $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray();
-        $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray(array(), array(), $request->get('_locale'));
+        $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray();
         $attributes = $em->getRepository("CoreProductBundle:Attribute")->getGroupedAttributesByProducts(array(), array(), $request->get('_locale'));
-        $options = $em->getRepository("CoreProductBundle:ProductOption")->getGroupedOptionsByProducts();
+        $options = $em->getRepository("CoreProductBundle:ProductOption")->getGroupedOptionsByProducts(array(), array(), $request->get('_locale'));
         $shippings = $em->getRepository("CoreShopBundle:Shipping")->getShippingQueryBuilder(null, true)->getQuery()->getResult();
         
         $pricegroup_id = $request->get('pricegroup');
