@@ -188,27 +188,22 @@ class HeurekaController extends ShopController
             $url->appendChild($document->createTextNode($this->generateUrl('product_site', $routeParams, true)));
             $item->appendChild($url);
             
-            if(isset($attributes[$product->getId()])) {
-                foreach($attributes[$product->getId()] as $aname => $values)
-                {
-                    $param = $document->createElement('PARAM');
-                    $param_name = $document->createElement('PARAM_NAME');
-                    $param_name->appendChild($document->createTextNode($aname));
-                    $param->appendChild($param_name);
-                    
-                    $param_val = $document->createElement('VAL');
-                    $avalues = array();
-                    foreach($values as $v) {
-                        $avalues[] = $v['value'];
+            $parameters = array();
+            foreach(array($attributes, $options) as $parameterArray)
+            {
+                if(isset($parameterArray[$product->getId()])) {
+                    foreach($parameterArray[$product->getId()] as $aname => $avalues) {
+                        foreach($avalues as $av) {
+                            $parameterArray[$aname][] = array(
+                                'name' => $aname,
+                                'value' => $av['value'],
+                            );
+                        }
                     }
-                    $param_val->appendChild($document->createTextNode(implode(", ", $avalues)));
-                    $param->appendChild($param_val);
-                    $item->appendChild($param);
                 }
             }
-            
-            if (isset($options[$product->getId()])) {
-                $combinations = $this->addCombination($options[$product->getId()]);
+            if(!empty($parameters)) {
+                $combinations = $this->addCombination($parameters);
                 foreach($combinations as $comb) {
                     $clone = $item->cloneNode(true);
                     foreach ($comb as $cname => $cvalue) {
@@ -229,7 +224,7 @@ class HeurekaController extends ShopController
                 }
             } else {
                 $shop->appendChild($item);
-            }
+            }    
         }
 
         $response = new Response();
@@ -244,8 +239,8 @@ class HeurekaController extends ShopController
     private function addCombination($options)
     {
         $comb = array_shift($options);
-        $fisrt = reset($comb);
-        $option_name = $fisrt['name'];
+        $first = reset($comb);
+        $option_name = $first['name'];
         $result = array();
         foreach ($comb as $ovalues) {
             $option_value = $ovalues['value'];
