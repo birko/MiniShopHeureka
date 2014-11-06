@@ -194,7 +194,7 @@ class HeurekaController extends ShopController
                 if(isset($parameterArray[$product->getId()])) {
                     foreach($parameterArray[$product->getId()] as $aname => $avalues) {
                         foreach($avalues as $av) {
-                            $parameterArray[$aname][] = array(
+                            $parameters[$aname][$av['value']] = array(
                                 'name' => $aname,
                                 'value' => $av['value'],
                             );
