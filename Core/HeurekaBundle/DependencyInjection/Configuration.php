@@ -21,6 +21,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('core_heureka')
             ->children()
                 ->variableNode("prices")->defaultValue(array('normal'))->end()
+                ->variableNode("delivery_id")->defaultNull()->end()
                 ->scalarNode('key')->defaultNull()->end()
             ->end();
 

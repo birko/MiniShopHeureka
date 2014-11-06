@@ -23,7 +23,10 @@ class HeurekaController extends ShopController
         }
 
         $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray();
-        $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray();
+        $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray(array(), array(), $request->get('_locale'));
+        $attributes = $em->getRepository("CoreProductBundle:Attribute")->getGroupedAttributesByProducts(array(), array(), $request->get('_locale'));
+        $options = $em->getRepository("CoreProductBundle:ProductOption")->getGroupedOptionsByProducts();
+        $shippings = $em->getRepository("CoreShopBundle:Shipping")->getShippingQueryBuilder(null, true)->getQuery()->getResult();
         
         $pricegroup_id = $request->get('pricegroup');
         $priceGroup = null;
@@ -37,7 +40,9 @@ class HeurekaController extends ShopController
             $currency = $em->getRepository('CorePriceBundle:Currency')->find($currency_id);
         }
         $currency = ($currency) ? $currency : $this->getCurrency();
+        
         $pricetypes = $this->container->getParameter('heureka.prices');
+        $delivery_id = $this->container->getParameter('heureka.delivery_id');
         
         $request= $this->getRequest();
         $document = new \DOMDocument('1.0', 'utf-8');
@@ -106,13 +111,33 @@ class HeurekaController extends ShopController
             $item->appendChild($manuf);
 
             $avb = $document->createElement('DELIVERY_DATE');
-
+            $qdocument = "0";
             if (isset($stocks[$product->getId()])) {
                 $stock = current($stocks[$product->getId()]);
                 $qdocument = ($stock->getAmount() > 0 || ($stock->getAvailability())) ? "0" : "";
-                $avb->appendChild($document->createTextNode($qdocument));
             }
+            $avb->appendChild($document->createTextNode($qdocument));
             $item->appendChild($avb);
+            
+            if (!empty($shippings)) {
+                foreach($shippings as $ship) {
+                    $is = $document->createElement('DELIVERY');
+                    $sh = $document->createElement('DELIVERY_ID');
+                    if (array_key_exists($ship->getId(), $delivery_id)){
+                        $sh->appendChild($document->createTextNode($delivery_id[$ship->getId()]));
+                    } else {
+                         $sh->appendChild($document->createTextNode('VLASTNA_PREPRAVA'));
+                    }
+                    $is->appendChild($sh);
+                    $sh = $document->createElement('DELIVERY_PRICE');
+                    $sh->appendChild($document->createTextNode(number_format($ship->calculatePriceVAT($currency), 2)));
+                    $is->appendChild($sh);
+                    $sh = $document->createElement('DELIVERY_PRICE_COD');
+                    $sh->appendChild($document->createTextNode(number_format($ship->calculatePriceVAT($currency), 2)));
+                    $is->appendChild($sh);
+                    $item->appendChild($is);
+                }
+            }
 
             $cat = $document->createElement('CATEGORYTEXT');
             $pom = "";
@@ -162,8 +187,50 @@ class HeurekaController extends ShopController
             }
             $url->appendChild($document->createTextNode($this->generateUrl('product_site', $routeParams, true)));
             $item->appendChild($url);
-
-            $shop->appendChild($item);
+            
+            if(isset($attributes[$product->getId()])) {
+                foreach($attributes[$product->getId()] as $aname => $values)
+                {
+                    $param = $document->createElement('PARAM');
+                    $param_name = $document->createElement('PARAM_NAME');
+                    $param_name->appendChild($document->createTextNode($aname));
+                    $param->appendChild($param_name);
+                    
+                    $param_val = $document->createElement('VAL');
+                    $avalues = array();
+                    foreach($values as $v) {
+                        $avalues[] = $v['value'];
+                    }
+                    $param_val->appendChild($document->createTextNode(implode(", ", $avalues)));
+                    $param->appendChild($param_val);
+                    $item->appendChild($param);
+                }
+            }
+            
+            if (isset($options[$product->getId()])) {
+                $combinations = $this->addCombination($options[$product->getId()]);
+                foreach($combinations as $comb) {
+                    $clone = $item->cloneNode(true);
+                    foreach ($comb as $cname => $cvalue) {
+                        $param = $document->createElement('PARAM');
+                        $param_name = $document->createElement('PARAM_NAME');
+                        $param_name->appendChild($document->createTextNode($cname));
+                        $param->appendChild($param_name);
+                        $param_val = $document->createElement('VAL');
+                        $param_val->appendChild($document->createTextNode($cvalue));
+                        $param->appendChild($param_val);
+                        $clone->appendChild($param);
+                    }
+                    $itemgroup = $document->createElement('ITEMGROUP_ID');
+                    $icode = trim($product->getId());
+                    $itemgroup->appendChild($document->createTextNode($icode));
+                    $clone->appendChild($itemgroup);
+                    $shop->appendChild($clone);
+                }
+            } else {
+                $shop->appendChild($item);
+            }
+            
         }
 
         $response = new Response();
@@ -173,5 +240,26 @@ class HeurekaController extends ShopController
         $response->headers->set('Content-disposition', ' attachment;filename=heureka.xml');
 
         return $response;
+    }
+    
+    private function addCombination($options)
+    {
+        $comb = array_shift($options);
+        $fisrt = reset($comb);
+        $option_name = $fisrt['name'];
+        $result = array();
+        foreach ($comb as $ovalues) {
+            $option_value = $ovalues['value'];
+            if(!empty($options)) {
+                $prev_result = $this->addCombination($options);
+                foreach($prev_result as $pom) {
+                    $result[] = array_merge(array($option_name => $option_value), $pom);
+                }
+            } else {
+                $result[] =  array($option_name => $option_value);
+            }
+        }
+        
+        return $result;
     }
 }

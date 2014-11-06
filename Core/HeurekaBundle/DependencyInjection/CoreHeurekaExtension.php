@@ -26,6 +26,10 @@ class CoreHeurekaExtension extends Extension
             $container->setParameter('heureka.prices', $config['prices']);
         }
         
+        if (isset($config['delivery_id'])) {
+            $container->setParameter('heureka.delivery_id', $config['delivery_id']);
+        }
+        
         if (isset($config['key'])) {
             $container->setParameter('heureka.key', $config['key']);
         }
