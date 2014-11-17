@@ -30,7 +30,10 @@ class CheckoutEndEventListener
         $request = $event->getRequest();
         $session = $request->getSession();
         $routename = $request->get('_route');
-        if (in_array($routename, array("checkout_end"))) {
+        if (
+            in_array($routename, array("checkout_end")) &&
+            $this->container->hasParameter('heureka.key')
+        ) {
             $heureka = $this->container->getParameter('heureka.key');
             if (!empty($heureka)) {
                 $cart = $controller->getCart();
