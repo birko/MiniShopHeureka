@@ -125,7 +125,7 @@ class HeurekaController extends ShopController
                 $pprice = $pprice->calculatePriceVAT($pricegroup, $currency);
                 break;
             }
-            $price->appendChild($document->createTextNode(number_format($pprice, 2)));
+            $price->appendChild($document->createTextNode(number_format($pprice, 2, '.', '')));
             $item->appendChild($price);
 
             $manuf = $document->createElement('MANUFACTURER');
@@ -154,10 +154,10 @@ class HeurekaController extends ShopController
                     }
                     $is->appendChild($sh);
                     $sh = $document->createElement('DELIVERY_PRICE');
-                    $sh->appendChild($document->createTextNode(number_format($ship->calculatePriceVAT($currency), 2)));
+                    $sh->appendChild($document->createTextNode(number_format($ship->calculatePriceVAT($currency), 2, '.', '')));
                     $is->appendChild($sh);
                     $sh = $document->createElement('DELIVERY_PRICE_COD');
-                    $sh->appendChild($document->createTextNode(number_format($ship->calculatePriceVAT($currency), 2)));
+                    $sh->appendChild($document->createTextNode(number_format($ship->calculatePriceVAT($currency), 2, '.', '')));
                     $is->appendChild($sh);
                     $item->appendChild($is);
                 }
