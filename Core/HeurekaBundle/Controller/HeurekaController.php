@@ -5,6 +5,7 @@ namespace Core\HeurekaBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Site\ShopBundle\Controller\ShopController;
+use Core\HeurekaBundle\Entity\HeurekaHelper;
 
 class HeurekaController extends ShopController
 {
@@ -28,7 +29,10 @@ class HeurekaController extends ShopController
         $attributes = $em->getRepository("CoreProductBundle:Attribute")->getGroupedAttributesByProducts(array(), array(), $request->get('_locale'));
         $options = $em->getRepository("CoreProductBundle:ProductOption")->getGroupedOptionsByProducts(array(), array(), $request->get('_locale'));
         $shippings = $em->getRepository("CoreShopBundle:Shipping")->getShippingQueryBuilder(null, true)->getQuery()->getResult();
-        
+        $heurekaProducts = $em->getRepository("CoreHeurekaBundle:ProductCategory")->getHeurekaCategoriesArray();
+        $heurekaCategories = $em->getRepository("CoreHeurekaBundle:CategoryCategory")->getHeurekaCategoriesArray();;
+        $helper = & HeurekaHelper::getCategories($request->get('_locale'));
+
         $pricegroup_id = $request->get('pricegroup');
         $priceGroup = null;
         if ($pricegroup_id !== null) {
@@ -42,8 +46,8 @@ class HeurekaController extends ShopController
         }
         $currency = ($currency) ? $currency : $this->getCurrency();
         
-        $pricetypes = $this->container->getParameter('heureka.prices');
-        $delivery_id = $this->container->getParameter('heureka.delivery_id');
+        $pricetypes = $this->container->hasParameter('heureka.prices') ? $this->container->getParameter('heureka.prices'): array('normal');
+        $delivery_id = $this->container->hasParameter('heureka.delivery_id') ? $this->container->getParameter('heureka.delivery_id') : array();
         
         $request= $this->getRequest();
         $document = new \DOMDocument('1.0', 'utf-8');
@@ -165,41 +169,56 @@ class HeurekaController extends ShopController
 
             $cat = $document->createElement('CATEGORYTEXT');
             $pom = "";
-            if ($product->getProductCategories()->count() > 0) {
-                $category  = $product->getProductCategories()->first()->getCategory();
-                $category_id = $category->getId();
-                if (isset($paths[$category_id])) {
-                    $pom = $paths[$category_id];
-                } else {
-                    $path ="";
-                    $categoryquery = $em->getRepository('CoreCategoryBundle:Category')
-                    ->getPathQueryBuilder($category)
-                    ->andWhere("node.enabled=:enabled")
-                    ->setParameter("enabled", true)
-                    ->getQuery();
-                    if ($request->get('_locale')) {
-                        $categoryquery->setHint(
-                            \Doctrine\ORM\Query::HINT_CUSTOM_OUTPUT_WALKER, 
-                            'Gedmo\\Translatable\\Query\\TreeWalker\\TranslationWalker'
-                        );
-                        $categoryquery->setHint(
-                            \Gedmo\Translatable\TranslatableListener::HINT_TRANSLATABLE_LOCALE,
-                            $request->get('_locale') // take locale from session or request etc.
-                        );
-                    }
-                    $pathcategories = $categoryquery->getResult();
-                    if (!empty($pathcategories)) {
-                        foreach ($pathcategories as $pathcat) {
-                            if (!empty($path)) {
-                                $path .= " | ";
+            if(
+                isset($heurekaProducts[$product->getId()]) &&
+                isset($heurekaProducts[$product->getId()]['heureka']) &&
+                !empty($heurekaProducts[$product->getId()]['heureka'])
+            ) {
+                $pom = $helper[$heurekaProducts[$product->getId()]['heureka']];
+            } else {
+                if ($product->getProductCategories()->count() > 0) {
+                    $category  = $product->getProductCategories()->first()->getCategory();
+                    $category_id = $category->getId();
+                    if(
+                        isset($heurekaCategories[$category_id]) &&
+                        isset($heurekaCategories[$category_id]['heureka']) &&
+                        !empty($heurekaCategories[$category_id]['heureka'])
+                    ) {
+                        $pom = $helper[$heurekaCategories[$category_id]['heureka']];
+                    } else {
+                        if (isset($paths[$category_id])) {
+                            $pom = $paths[$category_id];
+                        } else {
+                            $path ="";
+                            $categoryquery = $em->getRepository('CoreCategoryBundle:Category')
+                            ->getPathQueryBuilder($category)
+                            ->andWhere("node.enabled=:enabled")
+                            ->setParameter("enabled", true)
+                            ->getQuery();
+                            if ($request->get('_locale')) {
+                                $categoryquery->setHint(
+                                    \Doctrine\ORM\Query::HINT_CUSTOM_OUTPUT_WALKER, 
+                                    'Gedmo\\Translatable\\Query\\TreeWalker\\TranslationWalker'
+                                );
+                                $categoryquery->setHint(
+                                    \Gedmo\Translatable\TranslatableListener::HINT_TRANSLATABLE_LOCALE,
+                                    $request->get('_locale') // take locale from session or request etc.
+                                );
                             }
-                            $path .= $pathcat->getTitle();
+                            $pathcategories = $categoryquery->getResult();
+                            if (!empty($pathcategories)) {
+                                foreach ($pathcategories as $pathcat) {
+                                    if (!empty($path)) {
+                                        $path .= " | ";
+                                    }
+                                    $path .= $pathcat->getTitle();
+                                }
+                            }
+                            $pom = $path;
+                            $paths[$category_id] = $path;
                         }
                     }
-                    $pom = $path;
-                    $paths[$category_id] = $path;
                 }
-
             }
             $cat->appendChild($document->createTextNode($pom));
             $item->appendChild($cat);

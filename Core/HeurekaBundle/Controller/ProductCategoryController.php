@@ -57,6 +57,9 @@ class ProductCategoryController extends Controller
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $productEntity = $em->getRepository('CoreProductBundle:Product')->find($product);
+            if (!$productEntity) {
+                throw $this->createNotFoundException('Unable to find Product entity.');
+            }
             $entity->setProduct($productEntity);
             $em->persist($entity);
             $em->flush();

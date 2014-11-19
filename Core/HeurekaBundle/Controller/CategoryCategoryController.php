@@ -55,6 +55,11 @@ class CategoryCategoryController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+            $categoryEntity = $em->getRepository('CoreCategoryBundle:Category')->find($category);
+            if (!$categoryEntity) {
+                throw $this->createNotFoundException('Unable to find Category entity.');
+            }
+            $entity->setCategory($categoryEntity);
             $em->persist($entity);
             $em->flush();
 

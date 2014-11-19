@@ -51,4 +51,29 @@ class ProductCategoryRepository extends EntityRepository
     {
         return $this->setHint($this->getProductCategoryQueryBuilder($category, $recursive)->getQuery());
     }
+    
+    public function getHeurekaCategoriesArray($productIds = array(), $locale = null) 
+    {
+        $qb = $this->getProductCategoryQueryBuilder()
+            ->select("hpc.heurekaCategory as heureka, p.id as product");
+        if (!empty($productIds)) {
+            $qb->andWhere($qb->expr()->in("p.id", ":productIds"))
+                ->setParamater(":productIds", $productIds);
+        }
+        
+        $query = $this->setHint($qb->getQuery());
+        if ($locale) {
+            $query->setHint(
+                \Gedmo\Translatable\TranslatableListener::HINT_TRANSLATABLE_LOCALE,
+                $locale // take locale from session or request etc.
+            );
+        }
+        $result = array();
+        $iterator = $query->getArrayResult();
+        foreach ($iterator as $key => $entity) {
+           $result[$entity['product']] = $entity;
+        }
+
+        return $result;
+    }
 }

@@ -32,4 +32,29 @@ class CategoryCategoryRepository extends EntityRepository
     {
         return $this->setHint($this->getCategoryCategoryQueryBuilder()->getQuery());
     }
+    
+    public function getHeurekaCategoriesArray($categoryIds = array(), $locale = null) 
+    {
+        $qb = $this->getCategoryCategoryQueryBuilder()
+            ->select("hcc.heurekaCategory as heureka, c.id as category");
+        if (!empty($categoryIds)) {
+            $qb->andWhere($qb->expr()->in("c.id", ":categoryIds"))
+                ->setParamater(":categoryIds", $categoryIds);
+        }
+        
+        $query = $this->setHint($qb->getQuery());
+        if ($locale) {
+            $query->setHint(
+                \Gedmo\Translatable\TranslatableListener::HINT_TRANSLATABLE_LOCALE,
+                $locale // take locale from session or request etc.
+            );
+        }
+        $result = array();
+        $iterator = $query->getArrayResult();
+        foreach ($iterator as $key => $entity) {
+           $result[$entity['category']] = $entity;
+        }
+
+        return $result;
+    }
 }
