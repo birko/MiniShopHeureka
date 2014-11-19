@@ -280,4 +280,42 @@ class HeurekaController extends ShopController
         
         return $result;
     }
+    
+    public function parseSekcieAction()
+    {
+        $sections = array(
+            'sk' => 'http://www.heureka.sk/direct/xml-export/shops/heureka-sekce.xml',
+            'cz' => 'http://www.heureka.cz/direct/xml-export/shops/heureka-sekce.xml',
+        );
+        $file = "<?php\narray(\n";
+        foreach($sections as $lang => $url) 
+        {
+            $file .= "\t\"{$lang}\" => array(\n";
+            $element = simplexml_load_file($url);
+            $this->parseElement($element, $file);
+            $file .= "\t),\n";
+        }
+        $file .= ");\n";
+        
+        echo $file;
+        $response = new Response();
+        $response->setContent($file);
+        $response->headers->set('Content-Encoding', ' UTF-8');
+        $response->headers->set('Content-Type', ' text/xml; charset=UTF-8');
+        $response->headers->set('Content-disposition', ' attachment;filename=heureka.php');
+
+        return $response;
+    }
+    
+    private function parseElement($element, &$file, $parent = null)
+    {
+        foreach($element->CATEGORY as $category) {
+            $path = $category->CATEGORY_NAME; 
+            if ($parent !== null) {
+                $path = $parent ." | ".$path;
+            }
+            $file .=  "\t\t\"{$category->CATEGORY_ID}\" => \"{$path}\",\n";
+            $this->parseElement($category, $file, $path);
+        }
+    }
 }

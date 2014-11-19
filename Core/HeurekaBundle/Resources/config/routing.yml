@@ -1,3 +1,15 @@
+core_heureka_heurekaproductcategory:
+    resource: "@CoreHeurekaBundle/Resources/config/routing/productcategory.yml"
+    prefix:   /admin/product
+
+core_heureka_heurekacategorycategory:
+    resource: "@CoreHeurekaBundle/Resources/config/routing/categorycategory.yml"
+    prefix:   /admin/category
+
 core_heureka_export:
     pattern:  /heureka/export
     defaults: { _controller: CoreHeurekaBundle:Heureka:export }
+
+core_heureka_sekcie:
+    pattern:  /heureka/sekcie
+    defaults: { _controller: CoreHeurekaBundle:Heureka:parseSekcie }

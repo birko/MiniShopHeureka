@@ -1,0 +1,30 @@
+heurekaproductcategory:
+    path:     /heureka/{category}
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:index", category: ~  }
+
+heurekaproductcategory_show:
+    path:     /heureka/{id}/show
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:show" }
+
+heurekaproductcategory_new:
+    path:     /{product}/heureka/new/{category}
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:new", category: ~ }
+
+heurekaproductcategory_create:
+    path:     /{product}/heureka/create/{category}
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:create", category: ~ }
+    requirements: { _method: post }
+
+heurekaproductcategory_edit:
+    path:     /heureka/{id}/edit/{category}
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:edit", category: ~ }
+
+heurekaproductcategory_update:
+    path:     /heureka/{id}/update/{category}
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:update", category: ~ }
+    requirements: { _method: post|put }
+
+heurekaproductcategory_delete:
+    path:     /heureka/{id}/delete/{category}
+    defaults: { _controller: "CoreHeurekaBundle:ProductCategory:delete", category: ~ }
+    requirements: { _method: post|delete }
