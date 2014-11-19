@@ -2050,7 +2050,7 @@ array(
         "2819" => "Zážitky a ubytovanie",
         "2182" => "Zážitky a ubytovanie | Zážitky",
     ),
-    "cz" => array(
+    "cs" => array(
         "971" => "Auto-moto",
         "881" => "Auto-moto | Alkohol testery",
         "1471" => "Auto-moto | Alu kola",

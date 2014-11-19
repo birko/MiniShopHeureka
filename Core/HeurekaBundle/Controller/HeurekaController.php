@@ -304,7 +304,7 @@ class HeurekaController extends ShopController
     {
         $sections = array(
             'sk' => 'http://www.heureka.sk/direct/xml-export/shops/heureka-sekce.xml',
-            'cz' => 'http://www.heureka.cz/direct/xml-export/shops/heureka-sekce.xml',
+            'cs' => 'http://www.heureka.cz/direct/xml-export/shops/heureka-sekce.xml',
         );
         $file = "<?php\narray(\n";
         foreach($sections as $lang => $url) 
