@@ -23,11 +23,11 @@ class HeurekaController extends ShopController
             );
         }
 
-        $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray(null, array('image'));
-        $videos = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray(null, array('video'));
-        $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray();
+        $medias = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray(null, array('image'), $request->get('_locale'));
+        $videos = $em->getRepository("CoreProductBundle:ProductMedia")->getProductsMediasArray(null, array('video'), $request->get('_locale'));
+        $stocks = $em->getRepository("CoreProductBundle:Stock")->getStocksArray(null, $request->get('_locale'));
         $prices = $em->getRepository("CoreProductBundle:Price")->getPricesArray();
-        $categories = $em->getRepository("CoreProductBundle:ProductCategory")->getCategoriesArray();
+        $categories = $em->getRepository("CoreProductBundle:ProductCategory")->getCategoriesArray(null, $request->get('_locale'));
         $attributes = $em->getRepository("CoreProductBundle:Attribute")->getGroupedAttributesByProducts(array(), array(), $request->get('_locale'));
         $options = $em->getRepository("CoreProductBundle:ProductOption")->getGroupedOptionsByProducts(array(), array(), $request->get('_locale'));
         $shippings = $em->getRepository("CoreShopBundle:Shipping")->getShippingQueryBuilder(null, true)->getQuery()->getResult();
